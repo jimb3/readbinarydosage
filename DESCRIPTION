@@ -1,11 +1,32 @@
 Package: readbinarydosage
 Type: Package
-Title: What the package does (short line)
-Version: 1.0
+Title: Package to read SNPs from a binary dosage file
+Version: 1.0.0
 Date: 2020-04-07
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Authors@R:
+    c(person(given = "John",
+             family = "Morrison",
+             role = c("aut", "cre"),
+             email = "jmorr@usc.edu"),
+      person(given = "NCI",
+             role = "fnd",
+             comment = "CA196559"),
+      person(given = "NCI",
+             role = "fnd",
+             comment = "CA201407"),
+      person(given = "NIEHS",
+             role = "fnd",
+             comment = "ES007048"),
+      person(given = "NHLBI",
+             role = "fnd",
+             comment = "HL115606"))
+Maintainer: John Morrison <jmorr@usc.edu>
+Description: Routines to read SNPs from binary dosage files.
+  This includes routines to subset the SNPs by name, location,
+  minimum allele frequency, and minimum r-squared values.
+  Subsetting based on subjects is also included.
+License: GPL-3 + file LICENSE
+Encoding: UTF-8
 Imports: Rcpp (>= 1.0.4)
 LinkingTo: Rcpp, RcppArmadillo
+RoxygenNote: 7.1.0
