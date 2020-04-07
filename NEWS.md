@@ -8,5 +8,5 @@
 * Modified DESCRIPTION with appropriate entries
 * Deleted NAMESPACE
 * Deleted files in man directory
-* Ran roxygen2:roxygenise() to created documentation and new NAMESPACE file
-* After doing the above, check reports no errors warnings or notes
+* Ran roxygen2::roxygenise() to created documentation and new NAMESPACE file
+* After doing the above, devtools::check() reports no errors warnings or notes
