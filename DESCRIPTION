@@ -30,3 +30,6 @@ Encoding: UTF-8
 Imports: Rcpp (>= 1.0.4)
 LinkingTo: Rcpp, RcppArmadillo
 RoxygenNote: 7.1.0
+Suggests: 
+    testthat (>= 2.1.0),
+    covr

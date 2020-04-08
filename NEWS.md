@@ -1,5 +1,7 @@
 # readbinarydosage 1.0
 
+## Initial package set up
+
 * Added a `NEWS.md` file to track changes to the package.
 * Added readbinarydosage with lines to properly handle C++ functions
 * Created R function to call C++ code
@@ -10,3 +12,10 @@
 * Deleted files in man directory
 * Ran roxygen2::roxygenise() to created documentation and new NAMESPACE file
 * After doing the above, devtools::check() reports no errors warnings or notes
+
+## Adding testing
+
+* Added AppVeyor support
+* Added Travis support
+* Added first test - needed for code coverage
+* Added support for code coverage
