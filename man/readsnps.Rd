@@ -2,18 +2,22 @@
 % Please edit documentation in R/readbinarydosage.R
 \name{readsnps}
 \alias{readsnps}
-\title{readsnps
-Does nothing}
+\title{readsnps}
 \usage{
-readsnps()
+readsnps(bdfile)
+}
+\arguments{
+\item{bdfile}{Name of binary dosage data file}
 }
 \value{
-Returns 1
+Returns status of reading file
 }
 \description{
-readsnps
-Does nothing
+Test is the file can be opened
 }
 \examples{
-readsnps()
+testfile <- system.file("extdata",
+                        "test1.bdose",
+                        package = "readbinarydosage")
+readsnps(bdfile = testfile)
 }

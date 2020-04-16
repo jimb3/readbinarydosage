@@ -7,18 +7,19 @@
 using namespace Rcpp;
 
 // readsnpsc
-Rcpp::List readsnpsc();
-RcppExport SEXP _readbinarydosage_readsnpsc() {
+Rcpp::List readsnpsc(Rcpp::StringVector& filenames);
+RcppExport SEXP _readbinarydosage_readsnpsc(SEXP filenamesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(readsnpsc());
+    Rcpp::traits::input_parameter< Rcpp::StringVector& >::type filenames(filenamesSEXP);
+    rcpp_result_gen = Rcpp::wrap(readsnpsc(filenames));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_readbinarydosage_readsnpsc", (DL_FUNC) &_readbinarydosage_readsnpsc, 0},
+    {"_readbinarydosage_readsnpsc", (DL_FUNC) &_readbinarydosage_readsnpsc, 1},
     {NULL, NULL, 0}
 };
 

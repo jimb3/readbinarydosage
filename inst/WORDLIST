@@ -1,0 +1,10 @@
+AppVeyor
+CMD
+Codecov
+devtools
+Rcpp
+readsnps
+rhub
+roxygen
+roxygenise
+subformat

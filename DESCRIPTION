@@ -1,6 +1,6 @@
 Package: readbinarydosage
 Type: Package
-Title: Package to read SNPs from a binary dosage file
+Title: Package to Read SNPs from a Binary Dosage File
 Version: 1.0.0
 Date: 2020-04-07
 Authors@R:
@@ -25,7 +25,8 @@ Description: Routines to read SNPs from binary dosage files.
   This includes routines to subset the SNPs by name, location,
   minimum allele frequency, and minimum r-squared values.
   Subsetting based on subjects is also included.
-License: GPL-3 + file LICENSE
+License: GPL-3
+Language: en-US
 Encoding: UTF-8
 Imports: Rcpp (>= 1.0.4)
 LinkingTo: Rcpp, RcppArmadillo

@@ -2,14 +2,26 @@
 #' @importFrom Rcpp sourceCpp
 NULL
 
+release_questions <- function() {
+  c("Are you sure you want to do this?",
+    "Are you really sure?")
+}
+
 #' readsnps
-#' Does nothing
+#' 
+#' Test is the file can be opened
+#' 
+#' @param bdfile Name of binary dosage data file
+#' 
 #' @return
-#' Returns 1
+#' Returns status of reading file
 #' @export
 #'
 #' @examples
-#' readsnps()
-readsnps <- function() {
-  return(readsnpsc())
+#' testfile <- system.file("extdata",
+#'                         "test1.bdose",
+#'                         package = "readbinarydosage")
+#' readsnps(bdfile = testfile)
+readsnps <- function(bdfile) {
+  return(readsnpsc(filenames = bdfile))
 }
