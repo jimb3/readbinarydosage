@@ -7,19 +7,22 @@
 using namespace Rcpp;
 
 // readsnpsc
-Rcpp::List readsnpsc(Rcpp::StringVector& filenames);
-RcppExport SEXP _readbinarydosage_readsnpsc(SEXP filenamesSEXP) {
+Rcpp::List readsnpsc(Rcpp::StringVector& filename, Rcpp::NumericVector& indices, int numsub, Rcpp::LogicalVector dosageonly);
+RcppExport SEXP _readbinarydosage_readsnpsc(SEXP filenameSEXP, SEXP indicesSEXP, SEXP numsubSEXP, SEXP dosageonlySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::StringVector& >::type filenames(filenamesSEXP);
-    rcpp_result_gen = Rcpp::wrap(readsnpsc(filenames));
+    Rcpp::traits::input_parameter< Rcpp::StringVector& >::type filename(filenameSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type indices(indicesSEXP);
+    Rcpp::traits::input_parameter< int >::type numsub(numsubSEXP);
+    Rcpp::traits::input_parameter< Rcpp::LogicalVector >::type dosageonly(dosageonlySEXP);
+    rcpp_result_gen = Rcpp::wrap(readsnpsc(filename, indices, numsub, dosageonly));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_readbinarydosage_readsnpsc", (DL_FUNC) &_readbinarydosage_readsnpsc, 1},
+    {"_readbinarydosage_readsnpsc", (DL_FUNC) &_readbinarydosage_readsnpsc, 4},
     {NULL, NULL, 0}
 };
 

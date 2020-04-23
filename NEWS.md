@@ -56,3 +56,4 @@ the file was opened successfully.
 * Is the subformat valid (2 tests)
 
 After adding the code to open files the testing produced a couple of notes. One was about the case of the title needing to be in title case. The other was about the license.
+Removed LICENSE file and changed case of title. Still get a note about being a new submission but that doesn't seem to be important.
