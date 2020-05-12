@@ -52,7 +52,7 @@ extern const int NUMBEROFBASES = 3;
 extern const unsigned short USBASE[NUMBEROFBASES] = {
   0x7ffe, // Used for format 1.1
   0xfffe, // Used for format 1.2
-  0x2710  // Used for all other formats
+  0x2710  // Used for all other formats (0x2710 = 10000)
 };
 
 // Values the short integers are multiplied by to get dosage and genetic
@@ -62,16 +62,6 @@ extern const double DBASE[NUMBEROFBASES] = {
   1. / USBASE[1],
   1. / USBASE[2]
 };
-
-// Find base used by given format
-double findbase(int format, int subformat) {
-  if (format == 1) {
-    if (subformat == 1)
-      return DBASE[0];
-    return DBASE[1];
-  }
-  return DBASE[2];
-}
 
 // Routine to open a binary dosage file and read its format
 void readbdformat(Rcpp::StringVector &status,
@@ -126,140 +116,165 @@ void readbdformat(Rcpp::StringVector &status,
   subformat = header[7];
 }
 
-// Read dosages from formats 1.1, 2.1, 3.1, 3.3, 4.1, 4.3
-int readdosages1(Rcpp::StringVector &filename,
-                 Rcpp::NumericVector &indices,
-                 Rcpp::StringVector &status,
-                 Rcpp::NumericVector &dosage,
-                 char *readbuffer,
-                 int numsub,
-                 double dbase) {
-  std::ifstream bdfile;
-  unsigned short *us = (unsigned short *)readbuffer;
-  
-  bdfile.open(filename[0], std::ios_base::in | std::ios_base::binary);
-  bdfile.seekg(indices[0]);
+// **************************************************************************//
+//                                                                           //
+//               Convert data read to dosages and probabilities              //
+//                                                                           //
+// **************************************************************************//
 
-  bdfile.read(readbuffer, 2 * numsub);
-  for (int i = 0; i < 10; ++i) {
-    dosage[i] = us[i] * dbase;
-    Rcpp::Rcout << us[i] << '\t' << dosage[i] << std::endl;
+void convertbd1(arma::uvec &subindex,
+                arma::ivec &readbuffer,
+                int start,
+                int size,
+                arma::ivec &subbuffer,
+                arma::mat::iterator &dit,
+                double dbase,
+                unsigned short andbits) {
+  char *p = (char *)readbuffer.memptr() + start;
+  arma::Col<unsigned short> ureadbuffer((unsigned short *)p,
+                                        size, false, true);
+  arma::Col<unsigned short> usubbuffer((unsigned short *)subbuffer.memptr(),
+                                       subindex.size(), false, true);
+
+  usubbuffer = ureadbuffer.elem(subindex);
+  arma::Col<unsigned short>::iterator u;
+  for(u = usubbuffer.begin(); u != usubbuffer.end(); ++dit, ++u) {
+    *dit = (*u & andbits) * dbase;
+//    Rcpp::Rcout << std::setw(12) << *dit;
   }
-
-  bdfile.close();
-  return 0;
+//  Rcpp::Rcout << std::endl;
 }
 
-// Read dosages only from formats 1.2, 2.2
-int readdosages2(Rcpp::StringVector &filename,
-                 Rcpp::NumericVector &indices,
-                 Rcpp::StringVector &status,
-                 Rcpp::NumericVector &dosage,
-                 char *readbuffer,
-                 int numsub,
-                 double dbase) {
-  std::ifstream bdfile;
-  unsigned short *us = (unsigned short *)readbuffer;
-  double p1, p2;
-  
-  bdfile.open(filename[0], std::ios_base::in | std::ios_base::binary);
-  bdfile.seekg(indices[0]);
-  
-  bdfile.read(readbuffer, 2 * numsub);
-  for (int i = 0; i < numsub; ++i) {
-    p1 = us[i] * dbase;
-    p2 = us[i + numsub] * dbase;
-    dosage[i] = p1 + p2 + p2;
-    dosage[i] = (dosage[i] > 2.) ? 2. : dosage[i];
-  }
-  for (int i = 0; i < 10; ++i)
-    Rcpp::Rcout << dosage[i] << std::endl;
-  
-  bdfile.close();
-  return 0;
+void convertbd2(arma::uvec &subindex,
+                arma::ivec &readbuffer,
+                int start,
+                int size,
+                arma::ivec &subbuffer,
+                arma::mat::iterator &dit,
+                double dbase,
+                unsigned short andbits) {
 }
 
-// Read dosages and genetype probabilities from
-// format 1.2, 2.2
-int readbdall1(Rcpp::StringVector &filename,
-               Rcpp::NumericVector &indices,
-               Rcpp::StringVector &status,
-               Rcpp::NumericVector &dosage,
-               Rcpp::NumericVector &p0,
-               Rcpp::NumericVector &p1,
-               Rcpp::NumericVector &p2,
-               char *readbuffer,
-               int numsub,
-               double dbase) {
+// **************************************************************************//
+//                                                                           //
+//                          Reading in Blocks                                //
+//                                                                           //
+// **************************************************************************//
+
+
+// Read the block
+void readblock(Rcpp::StringVector &filename,
+               double blkloc,
+               double blksize,
+               arma::ivec &readbuffer) {
   std::ifstream bdfile;
-  unsigned short *us = (unsigned short *)readbuffer;
   
   bdfile.open(filename[0], std::ios_base::in | std::ios_base::binary);
-  bdfile.seekg(indices[0]);
-  
-  bdfile.read(readbuffer, 4 * numsub);
-  for (int i = 0; i < numsub; ++i) {
-    p1[i] = us[i] * dbase;
-    p2[i] = us[i + numsub] * dbase;
-    p0[i] = 1. - p1[i] - p2[i];
-    p0[i] = (p0[i] < 0.) ? 0. : p0[i];
-    dosage[i] = p1[i] + p2[i] + p2[i];
-    dosage[i] = (dosage[i] > 2.) ? 2. : dosage[i];
-  }
-  for (int i = 0; i < 10; ++i)
-    Rcpp::Rcout << std::setw(15) << p0[i] << std::setw(15) << p1[i] << std::setw(15) << p2[i] << std::setw(15) << dosage[i] << std::endl;
-
+  bdfile.seekg(blkloc);
+  bdfile.read((char *)readbuffer.memptr(), blksize);
   bdfile.close();
-  return 0;
 }
+
+// **************************************************************************//
+//                                                                           //
+//                          Reading in SNPs                                  //
+//                                                                           //
+// **************************************************************************//
 
 // Routine to read SNPs from binary dosage files
 // Returns status of reading
 // [[Rcpp::export]]
 Rcpp::List readsnpsc(Rcpp::StringVector &filename,
-                     Rcpp::NumericVector &indices,
-                     int numsub,
-                     Rcpp::LogicalVector dosageonly) {
-    std::ifstream bdfile;
-    int format = 0;
-    int subformat = 0;
-    char *readbuffer = NULL;
-    Rcpp::StringVector status(1);
-    Rcpp::NumericVector dosage(numsub);
-    Rcpp::NumericVector p0(numsub);
-    Rcpp::NumericVector p1(numsub);
-    Rcpp::NumericVector p2(numsub);
-    double dbase;
-    
-//    writebderrorfiles();    
-    status[0] = "Good";
-    
-    readbdformat(status, filename, format, subformat);
-    if (status[0] != "Good")
-      return Rcpp::List::create(Rcpp::Named("status") = status);
+                     arma::uvec &subjects,
+                     arma::uvec &snps,
+                     int nsub,
+                     arma::vec &snploc,
+                     arma::vec &snpbytes,
+                     arma::vec &blksnps,
+                     arma::vec &firstsnp,
+                     arma::vec &blkloc,
+                     arma::vec &blkbytes,
+                     Rcpp::LogicalVector &dosageonly) {
+  std::ifstream bdfile;
+  Rcpp::StringVector status(1);
+  arma::uvec subindex;
+  arma::uvec snpindex;
+  arma::uvec block;
+  arma::ivec readbuffer;
+  arma::ivec subbuffer;
+  arma::mat dosage;
+  int format = 0;
+  int subformat = 0;
+  int maxblock;
+  double dbase;
+  unsigned short andbits;
+  unsigned int currentblock;
+  void (*convertbd)(arma::uvec &,
+                    arma::ivec &,
+                    int,
+                    int,
+                    arma::ivec &,
+                    arma::mat::iterator &,
+                    double,
+                    unsigned short);
 
-    dbase = findbase(format, subformat);
-    if (format == 1 && subformat == 1) {
-      readbuffer = new char[2 * numsub];
-      readdosages1(filename, indices, status,
-                   dosage, readbuffer, numsub, dbase);
-    } else if (format == 1 && subformat == 2) {
-      readbuffer = new char[4 * numsub];
-      readbdall1(filename, indices, status,
-                 dosage, p0, p1, p2,
-                 readbuffer, numsub, dbase);
-    } else if (format == 2 && subformat == 1) {
-      readbuffer = new char[2 * numsub];
-      readdosages1(filename, indices, status,
-                   dosage, readbuffer, numsub, dbase);
-    } else if (format == 2 && subformat == 2) {
-      readbuffer = new char[4 * numsub];
-      readbdall1(filename, indices, status,
-                 dosage, p0, p1, p2,
-                 readbuffer, numsub, dbase);
-    }    
-    if (readbuffer)
-      delete [] readbuffer;
-    
+  status[0] = "Good";
+  
+  readbdformat(status, filename, format, subformat);
+  if (status[0] != "Good")
     return Rcpp::List::create(Rcpp::Named("status") = status);
+
+  maxblock = (int)blkbytes.max();
+  readbuffer.set_size((maxblock + sizeof(int) - 1) / sizeof(int));
+  
+  subbuffer.zeros((2 * subjects.size() + sizeof(int) - 1) / sizeof(int));
+  subindex = subjects - 1;
+  
+  snpindex = snps - 1;
+  block = snpindex / blksnps[0];
+  
+  dosage.zeros(subindex.size(), snpindex.size());
+
+  dbase = (format == 1) ? ((subformat == 1) ? DBASE[0] : DBASE[1]) : DBASE[2];
+  andbits = (format == 1) ? 0xffff : 0x7fff;
+  if (subformat == 1 || subformat == 3 || dosageonly[0] == TRUE)
+    convertbd = convertbd1;
+  else
+    convertbd = convertbd2;
+
+  currentblock = 0xffffffff;
+  arma::uvec::iterator iblk = block.begin();
+  arma::uvec::iterator isnp = snpindex.begin();
+  arma::mat::iterator dit = dosage.begin();
+  for (; iblk != block.end(); ++iblk, ++isnp) {
+    if (currentblock != *iblk) {
+      readblock(filename, blkloc[*iblk], blkbytes[*iblk], readbuffer);
+      currentblock = *iblk;
+    }
+    convertbd(subindex, readbuffer,
+              (int)(snploc[*isnp] - blkloc[*iblk]),
+              nsub, subbuffer,
+              dit, dbase, andbits);
+  }
+  
+  return Rcpp::List::create(Rcpp::Named("status") = status,
+                            Rcpp::Named("filename") = filename,
+                            Rcpp::Named("subindex") = subindex,
+                            Rcpp::Named("snpindex") = snpindex,
+                            Rcpp::Named("format") = format,
+                            Rcpp::Named("subformat") = subformat,
+                            Rcpp::Named("snploc") = snploc,
+                            Rcpp::Named("snpbytes") = snpbytes,
+                            Rcpp::Named("block") = block,
+                            Rcpp::Named("blksnps") = blksnps,
+                            Rcpp::Named("firstsnp") = firstsnp,
+                            Rcpp::Named("blkloc") = blkloc,
+                            Rcpp::Named("blkbytes") = blkbytes,
+                            Rcpp::Named("readbuffer") = readbuffer,
+                            Rcpp::Named("subbuffer") = subbuffer,
+                            Rcpp::Named("dosage") = dosage);
+//  return readdosage(bdfile, subindices, dosageonly, snps, nsub,
+//                    indices, dsize, blkbytes, readbuffer,
+//                    subbuffer,
+//                    status, format, subformat, dbase);
 }

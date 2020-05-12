@@ -7,22 +7,29 @@
 using namespace Rcpp;
 
 // readsnpsc
-Rcpp::List readsnpsc(Rcpp::StringVector& filename, Rcpp::NumericVector& indices, int numsub, Rcpp::LogicalVector dosageonly);
-RcppExport SEXP _readbinarydosage_readsnpsc(SEXP filenameSEXP, SEXP indicesSEXP, SEXP numsubSEXP, SEXP dosageonlySEXP) {
+Rcpp::List readsnpsc(Rcpp::StringVector& filename, arma::uvec& subjects, arma::uvec& snps, int nsub, arma::vec& snploc, arma::vec& snpbytes, arma::vec& blksnps, arma::vec& firstsnp, arma::vec& blkloc, arma::vec& blkbytes, Rcpp::LogicalVector& dosageonly);
+RcppExport SEXP _readbinarydosage_readsnpsc(SEXP filenameSEXP, SEXP subjectsSEXP, SEXP snpsSEXP, SEXP nsubSEXP, SEXP snplocSEXP, SEXP snpbytesSEXP, SEXP blksnpsSEXP, SEXP firstsnpSEXP, SEXP blklocSEXP, SEXP blkbytesSEXP, SEXP dosageonlySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::StringVector& >::type filename(filenameSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector& >::type indices(indicesSEXP);
-    Rcpp::traits::input_parameter< int >::type numsub(numsubSEXP);
-    Rcpp::traits::input_parameter< Rcpp::LogicalVector >::type dosageonly(dosageonlySEXP);
-    rcpp_result_gen = Rcpp::wrap(readsnpsc(filename, indices, numsub, dosageonly));
+    Rcpp::traits::input_parameter< arma::uvec& >::type subjects(subjectsSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type snps(snpsSEXP);
+    Rcpp::traits::input_parameter< int >::type nsub(nsubSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type snploc(snplocSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type snpbytes(snpbytesSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type blksnps(blksnpsSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type firstsnp(firstsnpSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type blkloc(blklocSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type blkbytes(blkbytesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::LogicalVector& >::type dosageonly(dosageonlySEXP);
+    rcpp_result_gen = Rcpp::wrap(readsnpsc(filename, subjects, snps, nsub, snploc, snpbytes, blksnps, firstsnp, blkloc, blkbytes, dosageonly));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_readbinarydosage_readsnpsc", (DL_FUNC) &_readbinarydosage_readsnpsc, 4},
+    {"_readbinarydosage_readsnpsc", (DL_FUNC) &_readbinarydosage_readsnpsc, 11},
     {NULL, NULL, 0}
 };
 

@@ -4,10 +4,12 @@
 \alias{readsnps}
 \title{readsnps}
 \usage{
-readsnps(bdfile)
+readsnps(bdfile, dosageonly)
 }
 \arguments{
 \item{bdfile}{Name of binary dosage data file}
+
+\item{indicator}{if dosage values only are to be returned}
 }
 \value{
 Returns status of reading file
